@@ -24,11 +24,11 @@
 			// create markup and bind events
 			this._config();
 
+			// initialize the carousel
 			this._initCarousel();
 
+			// add events 
 			this._initEvents();
-			
-			// initialize the carousel
 		},
 
 		_config: function() {
@@ -42,6 +42,7 @@
 			// create markup from template
 			this.$rgGallery = $('#rg-gallery-tmpl').tmpl( {itemsCount : this.itemsCount} );
 			this.$rgImage = this.$rgGallery.find('.rg-image');
+			this.$loader = this.$rgGallery.find('.rg-loading');
 
 			if( this.itemsCount > 1 ) {
 				// addNavigation
@@ -187,22 +188,22 @@
 		},
 
 		_showImage: function( $item ) {
-				
 			// shows the large image that is associated to the $item
-			
-			var $loader	= this.$rgGallery.find('.rg-loading').show();
+				
+			this.$loader.show();
 				 
 			var $thumb = $item.find('img'),
 				largesrc = $thumb.data('large'),
 				title = $thumb.data('description');
 			
 			$('<img/>').load( $.proxy( function() {
-					this.$rgImage.empty().append('<img src="' + largesrc + '"/>').centerBlock(true);
-					
+					this.$rgImage.children('img').replaceWith('<img src="' + largesrc + '"/>').next('figcaption').empty();
+					this.$rgImage.centerBlock(true);
+				
 					if( title )
-						this.$rgGallery.find('div.rg-caption').show().children('p').empty().text( title );
-					
-					$loader.hide();
+						this.$rgImage.children('figcaption').show().text( title );
+				
+					this.$loader.hide();
 					
 					if( this.options.mode === 'carousel' && this.itemsCount > 1 ) {
 						this.$items.removeClass('selected');

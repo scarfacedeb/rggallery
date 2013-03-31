@@ -51,7 +51,7 @@
 
 	.rg-image-wrapper{
 		position:relative;
-		padding:20px 30px;
+		padding: 0 30px 40px;
 		height: 100%;
 		border-radius: 10px;
 		background: #101010;
@@ -97,19 +97,15 @@
 
 		.rg-caption {
 			position: absolute;
-			bottom: 2%;
+			bottom: -20px;
 			left: 0;
 			right: 0;
+			display: none;
 			text-align: center;
+			letter-spacing:2px;
+			font-size: 16px;
+			font-family: 'Trebuchet MS', 'Myriad Pro', Arial, sans-serif;
 		}
-			.rg-caption p{
-				padding:0 15px;
-				line-height:16px;
-				text-transform:uppercase;
-				letter-spacing:2px;
-				font-size:11px;
-				font-family: 'Trebuchet MS', 'Myriad Pro', Arial, sans-serif;
-			}
 
 	.rg-view{
 		height:30px;

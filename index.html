@@ -25,18 +25,16 @@
 			<div id="rg-gallery" class="rg-gallery">
 				<div class="rg-image-wrapper">
 					{{if itemsCount > 1}}
-						<div class="rg-image-nav">
+						<nav class="rg-image-nav">
 							<a href="javascript:void(0);" class="rg-image-nav-prev">Previous Image</a>
 							<a href="javascript:void(0);" class="rg-image-nav-next">Next Image</a>
-						</div>
+						</nav>
 					{{/if}}
-					<div class="rg-image"></div>
+					<figure class="rg-image">
+						<img src="">
+						<figcaption class="rg-caption"></figcaption>
+					</figure>
 					<div class="rg-loading"></div>
-					<div class="rg-caption-wrapper">
-						<div class="rg-caption" style="display:none;">
-							<p></p>
-						</div>
-					</div>
 				</div>
 				{{if itemsCount > 1}}
 					<div class="rg-thumbs">
