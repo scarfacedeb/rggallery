@@ -171,11 +171,17 @@
 			
 			this.$rgGallery.appendTo('body').show();
 			this.navigate(target);
+			
+			// hide scroll
+			$('body').css('overflow', 'hidden');
 		},
 
 		hideGallery: function(){
 			this.$rgGallery.detach().hide();
 			this.current = 0;
+
+			// show scroll
+			$('body').css('overflow', '');
 		},
 
 		navigate: function( target ) {
