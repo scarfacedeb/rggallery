@@ -152,8 +152,5 @@
 		}
 
 	.rg-thumbs {
-		/* position: absolute; */
-		/* bottom: 0; */
-		/* left: 0; */
-		margin-top: 60px;
+		margin-top: 40px;
 	}
