@@ -117,24 +117,39 @@
 
 			if ( this.itemsCount > 1 ) {
 				// left/right arrows
-				$(document).on('keyup.rgGallery', $.proxy( function(e){
-						if (e.keyCode == 39)
-							this.navigate( 'right' );
-						else if (e.keyCode == 37)
+				if ( this.options.navEvents.arrows ) {
+					$(document).on('keyup.rgGallery', $.proxy( function(e){
+							if (e.keyCode == 39)
+								this.navigate( 'right' );
+							else if (e.keyCode == 37)
+								this.navigate( 'left' );
+						}, this)
+					);
+				}
+
+				// mouse scroll
+				if ( this.options.navEvents.mousewheel ) {
+					this.$rgImage.on('mousewheel.rgGallery', $.proxy( function(e){
+						if ( e.originalEvent.wheelDelta/120 > 0 )
 							this.navigate( 'left' );
-					}, this)
-				);
+						else
+							this.navigate( 'right' );
+						}, this)
+					);
+				}
 
 				// add touchwipe events on the large image wrapper
-				this.$rgImage.touchwipe({
-					wipeLeft: $.proxy( function(){
-						this.navigate( 'right' );
-					}, this ),
-					wipeRight: $.proxy( function(){
-						this.navigate( 'left' );
-					}, this),
-					preventDefaultEvents: false
-				});
+				if ( this.options.navEvents.swipe ) {
+					this.$rgImage.touchwipe({
+						wipeLeft: $.proxy( function(){
+							this.navigate( 'right' );
+						}, this ),
+						wipeRight: $.proxy( function(){
+							this.navigate( 'left' );
+						}, this),
+						preventDefaultEvents: false
+					});
+				}
 				
 
 				// navigation
@@ -228,6 +243,12 @@
 	    dataThumbs: false,
 	    elastislide: {
 			imageW: 65
+		},
+		// events that trigger navigation
+		navEvents: {
+			arrows: true, // arrow keys: left/right
+			mousewheel: true, // mousewheel: up/down
+			swipe: true // mobile swipe: left/right
 		}
 	};
 
