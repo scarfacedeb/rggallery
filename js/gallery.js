@@ -51,8 +51,6 @@
 				this.$navPrev	= this.$rgGallery.find('.rg-image-nav-prev');
 				this.$navNext = this.$rgGallery.find('.rg-image-nav-next');
 			}
-			
-			this.$rgGallery.appendTo('body');
 		},
 
 		_initCarousel: function() {
@@ -157,12 +155,12 @@
 		showGallery: function( target ){
 			if ( typeof target == undefined ) target = 0;
 			
-			this.$rgGallery.show();
+			this.$rgGallery.appendTo('body').show();
 			this.navigate(target);
 		},
 
 		hideGallery: function(){
-			this.$rgGallery.hide();
+			this.$rgGallery.detach().hide();
 			this.current = 0;
 		},
 
