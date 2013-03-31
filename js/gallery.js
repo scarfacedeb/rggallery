@@ -19,30 +19,27 @@
 
 	$.rgGallery.prototype = {
 		_init: function( options ) {
-				this.options = $.extend( {}, $.rgGallery.defaults, options),
+			this.options = $.extend( {}, $.rgGallery.defaults, options),
 
-				// create markup and bind events
-				this._config();
+			// create markup and bind events
+			this._config();
 
-				this._initCarousel();
+			this._initCarousel();
 
-				this._initEvents();
-				
-				// initialize the carousel
+			this._initEvents();
+			
+			// initialize the carousel
 		},
 
 		_config: function() {
-			//this.$triggers = this.$el.find('a');
-			
+		
 			this.$items = this.$el.find('li').clone();
 			this.itemsCount	 	= 	this.$items.length;
 
 			this.current = 0;
 			this.isAnimating = false;
 
-			// adds the structure for the large image and the navigation buttons (if total items > 1)
-			// also initializes the navigation events
-			
+			// create markup from template
 			this.$rgGallery = $('#rg-gallery-tmpl').tmpl( {itemsCount : this.itemsCount} );
 			this.$rgImage = this.$rgGallery.find('.rg-image');
 
@@ -50,17 +47,20 @@
 				// addNavigation
 				this.$navPrev	= this.$rgGallery.find('.rg-image-nav-prev');
 				this.$navNext = this.$rgGallery.find('.rg-image-nav-next');
+			} else {
+				// fill empty space for slider
+				this.$rgGallery.css('padding-bottom', 50);
 			}
 		},
 
 		_initCarousel: function() {
 			// elastislide plugin:
 			// http://tympanus.net/codrops/2011/09/12/elastislide-responsive-carousel/
-			if( this.options.mode !== 'carousel' ) return false;
+			if( this.options.mode !== 'carousel' || this.itemsCount < 2 ) return false;
 
-			$rgThumbs = $('#rg-thumbs').detach();
+			$rgThumbs = this.$rgGallery.find('.rg-thumbs');
 
-			//separate thumb src for slider
+			// optional separate thumb src for slider
 			if ( this.options.dataThumbs ) {
 				this.$items.each(function(){
 					var $this = $(this);
@@ -108,47 +108,45 @@
 				}, this )
 			);	
 
-			// left/right arrows
-			$(document).on('keyup.rgGallery', $.proxy( function(e){
-					if (e.keyCode == 39)
-						this.navigate( 'right' );
-					else if (e.keyCode == 37)
-						this.navigate( 'left' );
-				}, this)
-			);
-
-			// add touchwipe events on the large image wrapper
-			this.$rgImage.touchwipe({
-				wipeLeft: $.proxy( function(){
-					this.navigate( 'right' );
-				}, this ),
-				wipeRight: $.proxy( function(){
-					this.navigate( 'left' );
-				}, this),
-				preventDefaultEvents: false
-			});
-			
 			// responsive vertical align for images
 			$(window).resize( $.proxy( function(){
 					this.$rgImage.centerBlock(true);
 				}, this )
 			);
 
-			// navigation
-			this.$navPrev.on('click.rgGallery', $.proxy( function(e){
-					this.navigate( 'left' );
-					return false;
-				}, this )
-			);	
-			this.$navNext.on('click.rgGallery', $.proxy( function(e){
-					this.navigate( 'right' );
-					return false;
-				}, this )
-			);
+			if ( this.itemsCount > 1 ) {
+				// left/right arrows
+				$(document).on('keyup.rgGallery', $.proxy( function(e){
+						if (e.keyCode == 39)
+							this.navigate( 'right' );
+						else if (e.keyCode == 37)
+							this.navigate( 'left' );
+					}, this)
+				);
 
-			//handlers for slider
-			if( this.options.mode === 'carousel' ) {
+				// add touchwipe events on the large image wrapper
+				this.$rgImage.touchwipe({
+					wipeLeft: $.proxy( function(){
+						this.navigate( 'right' );
+					}, this ),
+					wipeRight: $.proxy( function(){
+						this.navigate( 'left' );
+					}, this),
+					preventDefaultEvents: false
+				});
+				
 
+				// navigation
+				this.$navPrev.on('click.rgGallery', $.proxy( function(e){
+						this.navigate( 'left' );
+						return false;
+					}, this )
+				);	
+				this.$navNext.on('click.rgGallery', $.proxy( function(e){
+						this.navigate( 'right' );
+						return false;
+					}, this )
+				);
 			}
 		},
 
@@ -206,7 +204,7 @@
 					
 					$loader.hide();
 					
-					if( this.options.mode === 'carousel' ) {
+					if( this.options.mode === 'carousel' && this.itemsCount > 1 ) {
 						this.$items.removeClass('selected');
 						$item.addClass('selected');
 
