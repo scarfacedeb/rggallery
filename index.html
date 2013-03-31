@@ -24,12 +24,10 @@
 		<script id="rg-gallery-tmpl" type="text/x-jquery-tmpl">	
 			<div id="rg-gallery" class="rg-gallery">
 				<div class="rg-image-wrapper">
-					{{if itemsCount > 1}}
-						<div class="rg-image-nav">
-							<a href="javascript:void(0);" class="rg-image-nav-prev">Previous Image</a>
-							<a href="javascript:void(0);" class="rg-image-nav-next">Next Image</a>
-						</div>
-					{{/if}}
+					<div class="rg-image-nav">
+						<a href="javascript:void(0);" class="rg-image-nav-prev">Previous Image</a>
+						<a href="javascript:void(0);" class="rg-image-nav-next">Next Image</a>
+					</div>
 					<div class="rg-image"></div>
 					<div class="rg-loading"></div>
 					<div class="rg-caption-wrapper">
@@ -90,7 +88,8 @@
 					<span class="es-nav-prev">Previous</span>
 					<span class="es-nav-next">Next</span>
 				</div>
-				<div class="es-carousel"></div>
+				<div class="es-carousel">
+				</div>
 			</div>
 		</div>
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>

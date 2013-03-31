@@ -1,45 +1,4 @@
 ;(function( $, window, document, undefined ) {
-	// ======================= imagesLoaded Plugin ===============================
-	// https://github.com/desandro/imagesloaded
-
-	// original: mit license. paul irish. 2010.
-	// contributors: Oren Solomianik, David DeSandro, Yiannis Chatzikonstantinou
-
-	$.fn.imagesLoaded 		= function( callback ) {
-		var $images = this.find('img'),
-			len 	= $images.length,
-			_this 	= this,
-			blank 	= 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
-
-		function triggerCallback() {
-			callback.call( _this, $images );
-		}
-
-		function imgLoaded() {
-			if ( --len <= 0 && this.src !== blank ){
-				setTimeout( triggerCallback );
-				$images.off( 'load error', imgLoaded );
-			}
-		}
-
-		if ( !len ) {
-			triggerCallback();
-		}
-
-		$images.on( 'load error',  imgLoaded ).each( function() {
-			// cached images don't fire load sometimes, so we reset src.
-			if (this.complete || this.complete === undefined){
-				var src = this.src;
-				// webkit hack from http://groups.google.com/group/jquery-dev/browse_thread/thread/eee6ab7b2da50e1f
-				// data uri bypasses webkit log warning (thx doug jones)
-				this.src = blank;
-				this.src = src;
-			}
-		});
-
-		return this;
-	};
-
 	/// source: http://jsfiddle.net/DerekL/GbDw9/
 	jQuery.fn.centerBlock = function(parent) {
       parent = parent ? this.parent() : window;
@@ -51,214 +10,264 @@
 	    //"left": ((($(parent).width() - this.outerWidth()) / 2) + $(parent).scrollLeft() + "px")
 		return this;
 	}
-	var pluginName = 'rgGallery';
+	
+	$.rgGallery = function( options, el ){
+		this.$el = $( el );
+		this._init( options );
+	}
 
-	$.rgGallery = function( el, options ){
-		
-		var self				 	= 	this,
-				options 		 	= 	$.extend( {}, $.rgGallery.defaults, options),
-				$triggersWrap	= 	$(el),
-				$items			 	= 	$triggersWrap.find('li'),
-				itemsCount	 	= 	$items.length,
-				$rgGallery,
-				$rgImage,
-				$rgThumbs 	 	=		$('#rg-thumbs').detach(),
-				$esCarousel,
-				current 		 	=		0,
-				anim				 	= 	false; // control if one image is being loaded
-		
-		
-		function init() {
-			// (not necessary) preloading the images here...
-			//$items.add('<img src="images/ajax-loader.gif"/><img src="images/black.png"/>').imagesLoaded( function() {
-				// add options
-				//_addViewModes();
-				
+
+	$.rgGallery.prototype = {
+		_init: function( options ) {
+				this.options = $.extend( {}, $.rgGallery.defaults, options),
+
 				// create markup and bind events
-				initGallery();
+				this._config();
+
+				this._initCarousel();
+
+				this._initEvents();
 				
 				// initialize the carousel
-				if( options.mode === 'carousel' )
-					initCarousel();
-				
-				// show first image
-				//showImage( $items.eq( current ) );
-			//});
-		}
+		},
 
-		function initGallery() {
+		_config: function() {
+			//this.$triggers = this.$el.find('a');
+			
+			this.$items = this.$el.find('li').clone();
+			this.itemsCount	 	= 	this.$items.length;
+
+			this.current = 0;
+			this.isAnimating = false;
+
 			// adds the structure for the large image and the navigation buttons (if total items > 1)
 			// also initializes the navigation events
 			
-			$rgGallery = $('#rg-gallery-tmpl').tmpl( {itemsCount : itemsCount} );
-			$rgImage = $rgGallery.find('div.rg-image');
+			this.$rgGallery = $('#rg-gallery-tmpl').tmpl( {itemsCount : this.itemsCount} );
+			this.$rgImage = this.$rgGallery.find('.rg-image');
 
-			$triggersWrap.on('click.rgGallery', 'a', function(event){
-				event.preventDefault();
-				
-				self.showGallery( $(this).parent().index() );
-				return false;
-			});
-
-			$(document).on('keyup.rgGallery', function( event ) {
-				if (event.keyCode == 27)
-					self.hideGallery();
-			});	
-
-			$(window).resize(function(){
-				$rgImage.centerBlock(true);
-			});
-
-			if( itemsCount > 1 ) {
+			if( this.itemsCount > 1 ) {
 				// addNavigation
-				var $navPrev			= $rgGallery.find('.rg-image-nav-prev'),
-					 	$navNext			= $rgGallery.find('.rg-image-nav-next'),
-						$imgWrapper		= $rgGallery.find('.rg-image');
-					
-				$navPrev.on('click.rgGallery', function( event ) {
-					self.navigate( 'left' );
-					return false;
-				});	
-				
-				$navNext.on('click.rgGallery', function( event ) {
-					self.navigate( 'right' );
-					return false;
-				});
-			
-				// add touchwipe events on the large image wrapper
-				$imgWrapper.touchwipe({
-					wipeLeft			: function() {
-						self.navigate( 'right' );
-					},
-					wipeRight			: function() {
-						self.navigate( 'left' );
-					},
-					preventDefaultEvents: false
-				});
-			
-				$(document).on('keyup.rgGallery', function( event ) {
-					if (event.keyCode == 39)
-						self.navigate( 'right' );
-					else if (event.keyCode == 37)
-						self.navigate( 'left' );
-				});	
+				this.$navPrev	= this.$rgGallery.find('.rg-image-nav-prev');
+				this.$navNext = this.$rgGallery.find('.rg-image-nav-next');
 			}
 			
-			$rgGallery.appendTo('body');
-		}
+			this.$rgGallery.appendTo('body');
+		},
 
-		function initCarousel() {
+		_initCarousel: function() {
 			// elastislide plugin:
 			// http://tympanus.net/codrops/2011/09/12/elastislide-responsive-carousel/
-			$rgThumbs.find('.es-carousel').append( $triggersWrap.clone().removeAttr('id') );
-			if ( options.sliderPosition == 'top' )
-				$rgGallery.prepend( $rgThumbs );
-			else
-				$rgGallery.append( $rgThumbs );
+			if( this.options.mode !== 'carousel' ) return false;
 
-			$esCarousel = $rgThumbs.children('.es-carousel-wrapper').show().elastislide({
-				imageW 	: 65,
-				onClick	: function( $item ) {
-					if( anim ) return false;
-					anim	= true;
-					// on click show image
-					showImage($item);
-					// change current
-					current	= $item.index();
-				}
-			});
-			$items = $esCarousel.find('li');
-			
+			$rgThumbs = $('#rg-thumbs').detach();
+
+			//separate thumb src for slider
+			if ( this.options.dataThumbs ) {
+				this.$items.each(function(){
+					var $this = $(this);
+					$this.prop( 'src', $this.data('thumb') ).removeProp('data-thumb');
+				});
+			}
+
+			var position = this.options.sliderPosition == 'top' ? 'prepend' : 'append';
+			$rgThumbs.find('.es-carousel').append( $('<ul>').append( this.$items ) );
+			this.$rgGallery[position]( $rgThumbs );
+
+			this.$rgSlider = $rgThumbs.children('.es-carousel-wrapper').show()
+				.elastislide( $.extend( {}, this.options.elastislide,
+					{
+						onClick: $.proxy( function( $item, e, x ) {
+							if( this.isAnimating ) return false;
+							this.isAnimating = true;
+							// on click show image
+							this._showImage( $item );
+							// change current
+							this.current = $item.index();
+						}, this )
+					}
+				)
+			);
+						
 			// set elastislide's current to current
-			$esCarousel.elastislide( 'setCurrent', current );
-		};
+			this.$rgSlider.elastislide( 'setCurrent', this.current );
+		},
 		
+		_initEvents: function(){
+			// open gallery
+			this.$el.on('click.rgGallery', 'a', $.proxy( function(e){
+					e.preventDefault();
+					
+					this.showGallery( $(e.target).closest('li').index() );
+					return false;
+				}, this )
+			);
 
-		this.showGallery = function( target ){
+			// close on Escape
+			$(document).on('keyup.rgGallery', $.proxy( function(e){
+					if (e.keyCode == 27)
+						this.hideGallery();
+				}, this )
+			);	
+
+			// left/right arrows
+			$(document).on('keyup.rgGallery', $.proxy( function(e){
+					if (e.keyCode == 39)
+						this.navigate( 'right' );
+					else if (e.keyCode == 37)
+						this.navigate( 'left' );
+				}, this)
+			);
+
+			// add touchwipe events on the large image wrapper
+			this.$rgImage.touchwipe({
+				wipeLeft: $.proxy( function(){
+					this.navigate( 'right' );
+				}, this ),
+				wipeRight: $.proxy( function(){
+					this.navigate( 'left' );
+				}, this),
+				preventDefaultEvents: false
+			});
+			
+			// responsive vertical align for images
+			$(window).resize( $.proxy( function(){
+					this.$rgImage.centerBlock(true);
+				}, this )
+			);
+
+			// navigation
+			this.$navPrev.on('click.rgGallery', $.proxy( function(e){
+					this.navigate( 'left' );
+					return false;
+				}, this )
+			);	
+			this.$navNext.on('click.rgGallery', $.proxy( function(e){
+					this.navigate( 'right' );
+					return false;
+				}, this )
+			);
+
+			//handlers for slider
+			if( this.options.mode === 'carousel' ) {
+
+			}
+		},
+
+		showGallery: function( target ){
 			if ( typeof target == undefined ) target = 0;
 			
-			$rgGallery.show();
-			self.navigate(target);
-		};
+			this.$rgGallery.show();
+			this.navigate(target);
+		},
 
-		this.hideGallery = function(){
-			$rgGallery.hide();
-			current = 0;
-		}
+		hideGallery: function(){
+			this.$rgGallery.hide();
+			this.current = 0;
+		},
 
-		this.navigate = function( target ) {
+		navigate: function( target ) {
 			// navigate through the large images
 			
-			if ( anim ) return false;
-			anim	= true;
+			if ( this.isAnimating ) return false;
+			this.isAnimating	= true;
 			
 			if ( typeof target === 'number' ) {
-				current = target;
+				this.current = target;
 			} else if ( target === 'right' ) {
-				if( current + 1 >= itemsCount )
-					current = 0;
+				if( this.current + 1 >= this.itemsCount )
+					this.current = 0;
 				else
-					++current;
+					++this.current;
 			} else if ( target === 'left' ) {
-				if( current - 1 < 0 )
-					current = itemsCount - 1;
+				if( this.current - 1 < 0 )
+					this.current = this.itemsCount - 1;
 				else
-					--current;
+					--this.current;
 			}
 			
-			showImage( $items.eq( current ) );
+			this._showImage( this.$items.eq( this.current ) );
 			
-		};
+		},
 
-
-		function showImage( $item ) {
+		_showImage: function( $item ) {
 				
 			// shows the large image that is associated to the $item
 			
-			var $loader	= $rgGallery.find('div.rg-loading').show();
+			var $loader	= this.$rgGallery.find('.rg-loading').show();
 				 
-			var $thumb		= $item.find('img'),
-					largesrc	= $thumb.data('large'),
-						title		= $thumb.data('description');
+			var $thumb = $item.find('img'),
+				largesrc = $thumb.data('large'),
+				title = $thumb.data('description');
 			
-			$('<img/>').load( function() {
-				
-				$rgImage.empty().append('<img src="' + largesrc + '"/>').centerBlock(true);
-				
-				if( title )
-					$rgGallery.find('div.rg-caption').show().children('p').empty().text( title );
-				
-				$loader.hide();
-				
-				if( options.mode === 'carousel' ) {
-					$items.removeClass('selected');
-					$item.addClass('selected');
+			$('<img/>').load( $.proxy( function() {
+					this.$rgImage.empty().append('<img src="' + largesrc + '"/>').centerBlock(true);
+					
+					if( title )
+						this.$rgGallery.find('div.rg-caption').show().children('p').empty().text( title );
+					
+					$loader.hide();
+					
+					if( this.options.mode === 'carousel' ) {
+						this.$items.removeClass('selected');
+						$item.addClass('selected');
 
-					$esCarousel.elastislide( 'reload' );
-					$esCarousel.elastislide( 'setCurrent', current );
-				}
-				
-				anim	= false;
-				
-			}).attr( 'src', largesrc );
+						this.$rgSlider.elastislide( 'reload' );
+						this.$rgSlider.elastislide( 'setCurrent', this.current );
+					}
+					
+					this.isAnimating	= false;
+					
+				}, this)
+			).attr( 'src', largesrc );
 			
 		}
-
-		init();
 	};
 
 
 	$.rgGallery.defaults = {
-	    mode 	: 'carousel',
-	    sliderPosition : 'bottom'
+	    mode: 'carousel',
+	    sliderPosition: 'bottom',
+	    dataThumbs: false,
+	    elastislide: {
+			imageW: 65
+		}
+	};
+
+	var logError = function( message ) {
+		if ( window.console ) {
+			window.console.error( message );
+		}
 	};
 
 	//rgGallery: Plugin Function
-	$.fn[pluginName] = function(options) {
-    return this.each(function() {
-      if ( !$.data(this, pluginName) ) {
-        $.data(this, pluginName, new $.rgGallery(this, options));
-      }
-    });
-	}
+	$.fn.rgGallery = function(options) {
+		if ( typeof options === 'string' ) {
+			var args = Array.prototype.slice.call( arguments, 1 );
+			this.each(function() {
+				var instance = $.data( this, 'rgGallery' );
+				if ( !instance ) {
+					logError( "cannot call methods on rgGallery prior to initialization; " +
+					"attempted to call method '" + options + "'" );
+					return;
+				}
+				if ( !$.isFunction( instance[options] ) || options.charAt(0) === "_" ) {
+					logError( "no such method '" + options + "' for rgGallery instance" );
+					return;
+				}
+				instance[ options ].apply( instance, args );
+			});
+		} else {
+			this.each(function() {	
+				var instance = $.data( this, 'rgGallery' );
+				if ( instance ) {
+					instance._init();
+				} else {
+					instance = $.data( this, 'rgGallery', new $.rgGallery( options, this ) );
+				}
+			});
+		}
+		return this;
+  }
+
 })(jQuery, window, document);
