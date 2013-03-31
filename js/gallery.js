@@ -42,16 +42,13 @@
 
 	/// source: http://jsfiddle.net/DerekL/GbDw9/
 	jQuery.fn.centerBlock = function(parent) {
-	    if (parent) {
-	        parent = this.parent();
-	    } else {
-	        parent = window;
-	    }
+      parent = parent ? this.parent() : window;
+
 	    this.css({
 	        "position": "absolute",
-	        "top": ((($(parent).height() - this.outerHeight()) / 2) + $(parent).scrollTop() + "px"),
-	        "left": ((($(parent).width() - this.outerWidth()) / 2) + $(parent).scrollLeft() + "px")
+	        "top": ((($(parent).height() - this.outerHeight()) / 2) + $(parent).scrollTop() + "px")
 	    });
+	    //"left": ((($(parent).width() - this.outerWidth()) / 2) + $(parent).scrollLeft() + "px")
 		return this;
 	}
 	var pluginName = 'rgGallery';
