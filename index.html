@@ -12,8 +12,6 @@
         <link rel="stylesheet" type="text/css" href="css/demo.css" />
 		<link rel="stylesheet" type="text/css" href="css/style.css" />
 		<link rel="stylesheet" type="text/css" href="css/elastislide.css" />
-		<link href='http://fonts.googleapis.com/css?family=PT+Sans+Narrow&v1' rel='stylesheet' type='text/css' />
-		<link href='http://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css' />
 		<noscript>
 			<style>
 				.es-carousel ul{
@@ -23,11 +21,12 @@
 		</noscript>
 		<script id="rg-gallery-tmpl" type="text/x-jquery-tmpl">	
 			<div id="rg-gallery" class="rg-gallery">
+				<span class="rg-close" title="Close">x</span>
 				<div class="rg-image-wrapper">
 					{{if itemsCount > 1}}
 						<nav class="rg-image-nav">
-							<a href="javascript:void(0);" class="rg-image-nav-prev">Previous Image</a>
-							<a href="javascript:void(0);" class="rg-image-nav-next">Next Image</a>
+							<span class="rg-image-nav-prev">Previous Image</span>
+							<span class="rg-image-nav-next">Next Image</span>
 						</nav>
 					{{/if}}
 					<figure class="rg-image">

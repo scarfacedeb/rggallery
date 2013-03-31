@@ -102,12 +102,17 @@
 				}, this )
 			);
 
+			this.$rgGallery.on('click.rgGallery', '.rg-close', $.proxy( function(e){
+					this.hideGallery();
+				}, this )
+			);
+
 			// close on Escape
 			$(document).on('keyup.rgGallery', $.proxy( function(e){
 					if (e.keyCode == 27)
 						this.hideGallery();
 				}, this )
-			);	
+			);
 
 			// responsive vertical align for images
 			$(window).resize( $.proxy( function(){
@@ -155,12 +160,10 @@
 				// navigation
 				this.$navPrev.on('click.rgGallery', $.proxy( function(e){
 						this.navigate( 'left' );
-						return false;
 					}, this )
 				);	
 				this.$navNext.on('click.rgGallery', $.proxy( function(e){
 						this.navigate( 'right' );
-						return false;
 					}, this )
 				);
 			}

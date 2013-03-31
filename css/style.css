@@ -68,7 +68,7 @@
 				max-height:95%;
 			}
 
-		.rg-image-nav a{
+		.rg-image-nav span {
 			position:absolute;
 			top:0px;
 			left:0px;
@@ -84,7 +84,7 @@
 			opacity:0.3;
 			cursor:pointer;
 		}
-		.rg-image-nav .rg-image-nav-next{
+		.rg-image-nav .rg-image-nav-next {
 			left:auto;
 			right:0px;
 			-webkit-border-radius: 0px 10px 10px 0px;
@@ -92,7 +92,7 @@
 			border-radius: 0px 10px 10px 0px;
 			background-position:115% 50%;
 		}
-		.rg-image-nav a:hover{ opacity:0.8; }
+		.rg-image-nav span:hover{ opacity:0.8; }
 
 
 		.rg-caption {
@@ -101,7 +101,6 @@
 			text-align: center;
 			letter-spacing:2px;
 			font-size: 16px;
-			font-family: 'Trebuchet MS', 'Myriad Pro', Arial, sans-serif;
 		}
 
 	.rg-view{
@@ -129,21 +128,35 @@
 			background-position:0px -16px;
 		}
 
-		.rg-loading{
-			position:absolute;
-			top:50%;
-			left:50%;
-			z-index:100;
-			margin:-23px 0px 0px -23px;
-			width:46px;
-			height:46px;
-			-webkit-border-radius: 10px;
-			-moz-border-radius: 10px;
-			border-radius: 10px;
-			background:#000 url(../images/ajax-loader.gif) no-repeat center center;
-			opacity:0.7;
-		}
-
 	.rg-thumbs {
 		margin-top: 40px;
 	}
+
+	.rg-loading{
+		position:absolute;
+		top:50%;
+		left:50%;
+		z-index:100;
+		margin:-23px 0px 0px -23px;
+		width:46px;
+		height:46px;
+		-webkit-border-radius: 10px;
+		-moz-border-radius: 10px;
+		border-radius: 10px;
+		background:#000 url(../images/ajax-loader.gif) no-repeat center center;
+		opacity:0.7;
+	}
+
+	.rg-close {
+		position: absolute;
+		top: 15px;
+		right: 57px;
+		z-index: 300;
+		text-transform: uppercase;
+		font-size: 20px;
+		color: #fff;
+		cursor: pointer;
+	}
+		.rg-close:hover {
+			text-shadow: 0 0 2px rgba(255,255,255,.6);
+		}
