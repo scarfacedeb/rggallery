@@ -40,6 +40,20 @@
 		return this;
 	};
 
+	/// source: http://jsfiddle.net/DerekL/GbDw9/
+	jQuery.fn.centerBlock = function(parent) {
+	    if (parent) {
+	        parent = this.parent();
+	    } else {
+	        parent = window;
+	    }
+	    this.css({
+	        "position": "absolute",
+	        "top": ((($(parent).height() - this.outerHeight()) / 2) + $(parent).scrollTop() + "px"),
+	        "left": ((($(parent).width() - this.outerWidth()) / 2) + $(parent).scrollLeft() + "px")
+	    });
+		return this;
+	}
 	var pluginName = 'rgGallery';
 
 	$.rgGallery = function( el, options ){
@@ -50,6 +64,7 @@
 				$items			 	= 	$triggersWrap.find('li'),
 				itemsCount	 	= 	$items.length,
 				$rgGallery,
+				$rgImage,
 				$rgThumbs 	 	=		$('#rg-thumbs').detach(),
 				$esCarousel,
 				current 		 	=		0,
@@ -79,7 +94,8 @@
 			// also initializes the navigation events
 			
 			$rgGallery = $('#rg-gallery-tmpl').tmpl( {itemsCount : itemsCount} );
-			
+			$rgImage = $rgGallery.find('div.rg-image');
+
 			$triggersWrap.on('click.rgGallery', 'a', function(event){
 				event.preventDefault();
 				
@@ -91,6 +107,10 @@
 				if (event.keyCode == 27)
 					self.hideGallery();
 			});	
+
+			$(window).resize(function(){
+				$rgImage.centerBlock(true);
+			});
 
 			if( itemsCount > 1 ) {
 				// addNavigation
@@ -206,7 +226,7 @@
 			
 			$('<img/>').load( function() {
 				
-				$rgGallery.find('div.rg-image').empty().append('<img src="' + largesrc + '"/>');
+				$rgImage.empty().append('<img src="' + largesrc + '"/>').centerBlock(true);
 				
 				if( title )
 					$rgGallery.find('div.rg-caption').show().children('p').empty().text( title );
