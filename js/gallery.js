@@ -11,9 +11,17 @@
 		return this;
 	}
 	
+	var Modernizr = window.Modernizr,
+		History = window.History;
+
 	$.rgGallery = function( options, el ){
 		this.$el = $( el );
 		this._init( options );
+
+		// link to particular image
+		if ( this.options.history ) {
+			this.showGallery( this._imageFromUrl() );
+		}
 	}
 
 
@@ -52,6 +60,41 @@
 				// fill empty space for slider
 				this.$rgGallery.css('padding-bottom', 50);
 			}
+
+			// init history.js if needed
+			if ( this.options.history )
+				this._initHistory();
+		},
+
+		_initHistory: function() {
+			// to distinguish Back button events from script-triggered events 
+			this.timestamps = [];
+
+			// Bind to StateChange Event
+			History.Adapter.bind( window,'statechange', $.proxy( function(){
+				    var State = History.getState();
+				    
+				    if ( State.data.time in this.timestamps ) {
+				    	// from script
+				    	delete this.timestamps[State.data.time];
+				    } else {
+				    	// from Back button
+				    	this.navigate( this._imageFromUrl(), true );
+				    }
+				}, this )
+			);
+		},
+
+		_imageFromUrl: function(){
+			var url = Modernizr.history ? window.location.search : window.location.hash;
+			var image = new RegExp( this.options.historyParam + "=(\\d+)" ).exec( url );
+			if ( image ) {
+				image = parseInt(image[1]);
+				if ( image <= this.itemsCount )
+					return image;
+			}
+			return false;
+
 		},
 
 		_initCarousel: function() {
@@ -59,7 +102,7 @@
 			// http://tympanus.net/codrops/2011/09/12/elastislide-responsive-carousel/
 			if( this.options.mode !== 'carousel' || this.itemsCount < 2 ) return false;
 
-			$rgThumbs = this.$rgGallery.find('.rg-thumbs');
+			var $rgThumbs = this.$rgGallery.find('.rg-thumbs');
 
 			// optional separate thumb src for slider
 			if ( this.options.dataThumbs ) {
@@ -76,13 +119,8 @@
 			this.$rgSlider = $rgThumbs.children('.es-carousel-wrapper').show()
 				.elastislide( $.extend( {}, this.options.elastislide,
 					{
-						onClick: $.proxy( function( $item, e, x ) {
-							if( this.isAnimating ) return false;
-							this.isAnimating = true;
-							// on click show image
-							this._showImage( $item );
-							// change current
-							this.current = $item.index();
+						onClick: $.proxy( function( $item ) {
+							this.navigate( $item.index() );
 						}, this )
 					}
 				)
@@ -187,9 +225,9 @@
 			$('body').css('overflow', '');
 		},
 
-		navigate: function( target ) {
+		navigate: function( target, skipHistory ) {
 			// navigate through the large images
-			
+
 			if ( this.isAnimating ) return false;
 			this.isAnimating	= true;
 			
@@ -208,7 +246,13 @@
 			}
 			
 			this._showImage( this.$items.eq( this.current ) );
-			
+
+			// update state
+			if ( this.options.history && !skipHistory ) {
+				var t = new Date().getTime();
+				this.timestamps[t] = t;
+				History.pushState( { time: t }, null, "?image=" + this.current );
+			}
 		},
 
 		_showImage: function( $item ) {
@@ -258,7 +302,9 @@
 			arrows: true, // arrow keys: left/right
 			mousewheel: true, // mousewheel: up/down
 			swipe: true // mobile swipe: left/right
-		}
+		},
+		history: true, // pushState on image change
+		historyParam: 'image' // get param for pushState
 	};
 
 	var logError = function( message ) {

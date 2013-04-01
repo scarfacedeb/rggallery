@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>Responsive Image Gallery</title>
+  <head>
+    <title>Responsive Image Gallery</title>
 		<meta charset="UTF-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> 
@@ -49,8 +49,20 @@
 				{{/if}}
 			</div>
 		</script>
-    </head>
-    <body>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script src="js/jquery.tmpl.min.js"></script>
+		<script src="js/jquery.easing.1.3.js"></script>
+		<script src="js/jquery.elastislide.js"></script>
+		<script src="js/jquery.history.js"></script>
+		<script src="js/modernizr.custom.13123.js"></script>
+		<script src="js/gallery.js"></script>
+		<script>
+			$(document).ready(function(){
+				$('#gallery').rgGallery();
+			});
+		</script>
+  </head>
+  <body>
 		<div class="container">
 			<div class="header">
 				<a href="http://tympanus.net/Development/Elastislide/"><span>&laquo; Previous Demo: </span>Elastislide</a>
@@ -93,13 +105,5 @@
 				</ul>
 			</div><!-- content -->
 		</div><!-- container -->
-		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-		<script src="js/jquery.tmpl.min.js"></script>
-		<script src="js/jquery.easing.1.3.js"></script>
-		<script src="js/jquery.elastislide.js"></script>
-		<script src="js/gallery.js"></script>
-		<script>
-			$('#gallery').rgGallery();
-		</script>
   </body>
 </html>
