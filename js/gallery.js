@@ -50,7 +50,7 @@
 			this.isAnimating = false;
 
 			// create markup from template
-			this.$rgGallery = $('#rg-gallery-tmpl').tmpl( {itemsCount : this.itemsCount} );
+			this.$rgGallery = $('#rg-gallery').detach();
 			this.$rgImage = this.$rgGallery.find('.rg-image');
 			this.$loader = this.$rgGallery.find('.rg-loading');
 
@@ -104,7 +104,7 @@
 			// http://tympanus.net/codrops/2011/09/12/elastislide-responsive-carousel/
 			if( this.options.mode !== 'carousel' || this.itemsCount < 2 ) return false;
 
-			var $rgThumbs = this.$rgGallery.find('.rg-thumbs');
+			this.$rgThumbs = $('#rg-thumbs').detach();
 
 			// optional separate thumb src for slider
 			if ( this.options.dataThumbs ) {
@@ -113,10 +113,8 @@
 					$this.prop( 'src', $this.data('thumb') ).removeProp('data-thumb');
 				});
 			}
+			this.$rgThumbs.find('.es-carousel').append( $('<ul>').append( this.$items ) );
 
-			var position = this.options.sliderPosition == 'top' ? 'prepend' : 'append';
-			$rgThumbs.find('.es-carousel').append( $('<ul>').append( this.$items ) );
-			this.$rgGallery[position]( $rgThumbs );
 
 			this.$rgSlider = $rgThumbs.children('.es-carousel-wrapper').show()
 				.elastislide( $.extend( {}, this.options.elastislide,
@@ -127,6 +125,11 @@
 					}
 				)
 			);
+			// append/prepend slider to gallery
+			var position = this.options.thumbsPosition == 'top' ? 'prepend' : 'append';
+			this.$rgGallery[position]( this.$rgThumbs );
+		},
+		
 						
 			// set elastislide's current to current
 			this.$rgSlider.elastislide( 'setCurrent', this.current );
@@ -142,6 +145,7 @@
 				}, this )
 			);
 
+			// close button
 			this.$rgGallery.on('click.rgGallery', '.rg-close', $.proxy( function(e){
 					this.hideGallery();
 				}, this )
@@ -211,10 +215,9 @@
 
 		showGallery: function( target ){
 			if ( typeof target == undefined ) target = 0;
-			
 			this.$rgGallery.appendTo('body').show();
 			this.navigate(target);
-			
+		
 			// hide scroll
 			$('body').css('overflow', 'hidden');
 		},
