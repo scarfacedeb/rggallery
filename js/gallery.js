@@ -20,7 +20,9 @@
 
 		// link to particular image
 		if ( this.options.history ) {
-			this.showGallery( this._imageFromUrl() );
+			var image = this._imageFromUrl();
+			if ( image )
+				this.showGallery( image );
 		}
 	}
 
