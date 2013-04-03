@@ -225,6 +225,9 @@
 
 			// show scroll
 			$('body').css('overflow', '');
+
+			// remove all get/hash params
+			this._pushState( true );
 		},
 
 		navigate: function( target, skipHistory ) {
@@ -251,10 +254,15 @@
 
 			// update state
 			if ( this.options.history && !skipHistory ) {
-				var t = new Date().getTime();
-				this.timestamps[t] = t;
-				History.pushState( { time: t }, null, "?image=" + this.current );
+				this._pushState();
 			}
+		},
+
+		_pushState: function( remove ) {
+			var url = remove ? location.pathname : "?image=" + this.current; // remove all get params on close
+			var t = new Date().getTime();
+			this.timestamps[t] = t;
+			History.pushState( { time: t }, null, url );
 		},
 
 		_showImage: function( $item ) {
