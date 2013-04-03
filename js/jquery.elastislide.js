@@ -16,8 +16,9 @@
 							// (unless of course minItems is higher than the total number of elements)
 		current		: 0,	// index of the current item
 							// when we resize the window, the carousel will make sure this item is visible 
-		onClick		: function() { return false; } // click item callback
-    };
+		onClick		: function() { return false; }, // click item callback
+		onBeforeSlide : function() { return false; }
+  };
 	
 	$.elastislide.prototype 	= {
 		_init 				: function( options ) {
@@ -124,8 +125,8 @@
 		},
 		_addControls		: function() {
 			
-			this.$navNext	= $('<span class="es-nav-next">Next</span>');
-			this.$navPrev	= $('<span class="es-nav-prev">Previous</span>');
+			this.$navNext	= $('<span class="es-nav-next">❭</span>');
+			this.$navPrev	= $('<span class="es-nav-prev">❬</span>');
 			$('<div class="es-nav"/>')
 			.append( this.$navPrev )
 			.append( this.$navNext )
@@ -147,6 +148,15 @@
 					this.$navNext.hide();
 			
 		},
+		// TODO: hide next/prev nav
+		// toggleControls 		: function( control, state ) {
+		// 	var control = '$nav' + control.charAt(0).toUpperCase() + control.slice(1);
+		// 	if ( state == true ) {
+		// 		this[control].show();
+		// 	} else {
+		// 		this[control].hide();
+		// 	}
+		// },
 		_initEvents			: function() {
 			
 			var instance	= this;
@@ -302,9 +312,11 @@
 			
 			var instance	= this;
 			
-			this.$slider.stop().applyStyle( sliderCSS, $.extend( true, [], { duration : this.options.speed, easing : this.options.easing, complete : function() {
+			this.options.onBeforeSlide( val );
+
+			this.$slider.stop().applyStyle( sliderCSS, $.extend( true, [], { duration : this.options.speed, easing : this.options.easing, complete : $.proxy( function() {
 				if( callback ) callback.call();
-			} } ) );
+			}, this) } ) );
 			
 		},
 		_slideToCurrent		: function( anim ) {
@@ -343,6 +355,11 @@
 			
 			if ( callback ) callback.call();
 			
+		},
+		setOption			: function( option, value ) {
+			if ( option in this.options ) {
+				this.options[option] = value;
+			}
 		},
 		destroy				: function( callback ) {
 			

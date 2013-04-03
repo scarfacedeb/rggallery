@@ -116,26 +116,64 @@
 			}
 			this.$rgThumbs.find('.es-carousel').append( $('<ul>').append( this.$items ) );
 
-
-			this.$rgSlider = $rgThumbs.children('.es-carousel-wrapper').show()
+			// call elasticslide
+			this.$esCarousel = this.$rgThumbs.children('.es-carousel-wrapper').show()
 				.elastislide( $.extend( {}, this.options.elastislide,
 					{
+						//current: this.current,
 						onClick: $.proxy( function( $item ) {
 							this.navigate( $item.index() );
 						}, this )
 					}
 				)
 			);
+
+			// add scroll
+			if ( this.options.scroll )
+				this._initSlider();
+
 			// append/prepend slider to gallery
 			var position = this.options.thumbsPosition == 'top' ? 'prepend' : 'append';
 			this.$rgGallery[position]( this.$rgThumbs );
 		},
 		
+		_initSlider: function(){
+
+			// append rgThumbs to body to determine carousel width
+			this.$esSlider = this.$rgThumbs.appendTo('body').find('.es-scroll').slider({
+				orientation	: 'horizontal',
+				animate 	: 1000,
+				min			: 0,
+				value		: 0,
+				slide		: $.proxy( function(e, ui) {
+					this.$esCarousel.find('ul').css( 'marginLeft', -ui.value );
+					// TODO: hide next/prev nav
+					// if ( ui.value == 0 ){
+					// 	this.$esCarousel.elastislide( 'toggleControls', 'prev' );
+					// }
+				}, this )
+			});
+			this.$rgThumbs.detach();
+
+			// window resize
+			$(window).on('resize.rgGallery', $.proxy( function( e ) {
+					this.$esSlider.slider( 'option' , 'max', this.$esCarousel.find('ul').width() - this.$esCarousel.width() - 13 );
+				}, this)
+			);
+
+			// add hook for slider
+			this.$esCarousel.elastislide( 'setOption', 'onBeforeSlide', $.proxy( function( val ){
+					if ( this.$esSlider ) {
+						// if next/prev navigation is pressed -> val == '-=100'.
+						if ( typeof val == 'string' )
+							var val = -( this.$esSlider.slider('value') - parseInt(val.replace('=','')) );
 						
-			// set elastislide's current to current
-			this.$rgSlider.elastislide( 'setCurrent', this.current );
+						this.$esSlider.slider( 'value', -val );
+					}
+				}, this ) 
+			);
 		},
-		
+
 		_initEvents: function(){
 			// open gallery
 			this.$el.on('click.rgGallery', 'a', $.proxy( function(e){
@@ -221,6 +259,11 @@
 		
 			// hide scroll
 			$('body').css('overflow', 'hidden');
+
+			// set max value for scroll
+			// moved this from _initSlider because width() returned different values
+			if ( this.options.scroll && this.options.carousel && this.itemsCount > 1 )
+				this.$esSlider.slider( 'option', 'max', this.$esCarousel.find('ul').width() - this.$esCarousel.width() - 3 );
 		},
 
 		hideGallery: function(){
@@ -291,8 +334,8 @@
 						this.$items.removeClass('selected');
 						$item.addClass('selected');
 
-						this.$rgSlider.elastislide( 'reload' );
-						this.$rgSlider.elastislide( 'setCurrent', this.current );
+						this.$esCarousel.elastislide( 'reload' );
+						this.$esCarousel.elastislide( 'setCurrent', this.current );
 					}
 					
 					this.isAnimating	= false;
@@ -312,6 +355,7 @@
 	    elastislide: {
 			imageW: 65
 		},
+		scroll: true, // show scroll with slider
 		// events that trigger navigation
 		navEvents: {
 			arrows: true, // arrow keys: left/right
