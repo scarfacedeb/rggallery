@@ -58,7 +58,8 @@
 				// addNavigation
 				this.$navPrev	= this.$rgGallery.find('.rg-image-nav-prev');
 				this.$navNext = this.$rgGallery.find('.rg-image-nav-next');
-			} else {
+			} 
+			if ( this.itemsCount < 2 || !this.options.carousel ) {
 				// fill empty space for slider
 				this.$rgGallery.css('padding-bottom', 50);
 			}
@@ -102,7 +103,7 @@
 		_initCarousel: function() {
 			// elastislide plugin:
 			// http://tympanus.net/codrops/2011/09/12/elastislide-responsive-carousel/
-			if( this.options.mode !== 'carousel' || this.itemsCount < 2 ) return false;
+			if( !this.options.carousel || this.itemsCount < 2 ) return false;
 
 			this.$rgThumbs = $('#rg-thumbs').detach();
 
@@ -159,7 +160,7 @@
 			);
 
 			// responsive vertical align for images
-			$(window).resize( $.proxy( function(){
+			$(window).on( 'resize.rgGallery', $.proxy( function(){
 					this.$rgImage.centerBlock(true);
 				}, this )
 			);
@@ -286,7 +287,7 @@
 				
 					this.$loader.hide();
 					
-					if( this.options.mode === 'carousel' && this.itemsCount > 1 ) {
+					if( this.options.carousel && this.itemsCount > 1 ) {
 						this.$items.removeClass('selected');
 						$item.addClass('selected');
 
@@ -304,9 +305,10 @@
 
 
 	$.rgGallery.defaults = {
-	    mode: 'carousel',
-	    sliderPosition: 'bottom',
-	    dataThumbs: false,
+	    carousel: true, // show carousel
+	    thumbsPosition: 'bottom', // position of the carousel
+	    dataThumbs: false, // use data-thumb fields as the source of thumbnails
+	     // options for carousel
 	    elastislide: {
 			imageW: 65
 		},
