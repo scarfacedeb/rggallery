@@ -27,7 +27,7 @@
 	right: 0;
 	display: none;
 	z-index: 500;
-	padding: 10px 20px 165px 10px;
+	padding: 10px 10px 165px 10px;
 	background: #1F1F1F;
 	background: rgba(31, 31, 31, 0.96);
 	-webkit-animation: fadeInScale 1.2s ease-in-out;
@@ -134,7 +134,7 @@
 	.rg-close {
 		position: absolute;
 		top: 15px;
-		right: 57px;
+		right: 47px;
 		z-index: 300;
 		text-transform: uppercase;
 		font-size: 20px;
@@ -257,3 +257,21 @@
 	.rg-gallery-social .rg-image-wrapper {
 		margin-top: 10px;
 	}
+
+
+@media only screen and (max-width: 620px), only screen and (max-device-width: 620px) {
+	.rg-gallery {
+		padding-left: 0;
+		padding-right: 0;
+	}
+		.rg-close {
+			right: 37px;
+		}
+
+		.ui-slider-handle {
+			top: -12px;
+			width: 30px;
+			height: 28px;
+			border-radius: 14px;
+		}
+}
