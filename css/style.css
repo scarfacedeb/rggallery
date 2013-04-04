@@ -27,7 +27,7 @@
 	right: 0;
 	display: none;
 	z-index: 500;
-	padding: 10px 20px 175px 10px;
+	padding: 10px 20px 165px 10px;
 	background: #1F1F1F;
 	background: rgba(31, 31, 31, 0.96);
 	-webkit-animation: fadeInScale 1.2s ease-in-out;
@@ -150,7 +150,7 @@
 /* ----------- Thumbs - Elastislide ----------- */
 .rg-thumbs {
 	position:relative;
-	margin-top: 30px;
+	margin-top: 10px;
 	padding:10px 27px;
 	-webkit-border-radius: 10px;
 	-moz-border-radius: 10px;
@@ -217,8 +217,7 @@
 		}
 
 
-/* Slider
-----------------------------------*/
+/* --------------- Slider ------------------*/
 .ui-slider { 
 	position: relative; 
 	margin-bottom: 10px;
@@ -242,4 +241,19 @@
 		background: #9b9b9b;
 		opacity: .85;
 		cursor: pointer;
+	}
+
+
+/* --------------- Social ------------------*/
+.rg-gallery-social {
+	padding-bottom: 200px;
+}
+	.rg-social {
+		text-align: center;
+	}
+	.rg-gallery-social .rg-close {
+		top: 53px;
+	}
+	.rg-gallery-social .rg-image-wrapper {
+		margin-top: 10px;
 	}

@@ -21,7 +21,7 @@
 		// link to particular image
 		if ( this.options.history ) {
 			var image = this._imageFromUrl();
-			if ( image )
+			if ( image !== false  )
 				this.showGallery( image );
 		}
 	}
@@ -67,11 +67,18 @@
 			// init history.js if needed
 			if ( this.options.history )
 				this._initHistory();
+
+			// init social links - socialcount plugin
+			if ( this.options.socialLinks )
+				this._initSocial();
 		},
 
 		_initHistory: function() {
 			// to distinguish Back button events from script-triggered events 
 			this.timestamps = [];
+
+			// original page title
+			this.pageTitle = document.title;
 
 			// Bind to StateChange Event
 			History.Adapter.bind( window,'statechange', $.proxy( function(){
@@ -98,6 +105,14 @@
 			}
 			return false;
 
+		},
+
+		_initSocial: function(){
+			// init socialcount plugin
+			this.$rgSocial = this.$rgGallery.find('#rg-social');
+			this.$socialCount = this.$rgSocial.children('ul').socialCount( this.options.socialConfig );
+
+			this.$rgGallery.addClass( 'rg-gallery-social' );
 		},
 
 		_initCarousel: function() {
@@ -306,10 +321,13 @@
 		},
 
 		_pushState: function( remove ) {
-			var url = remove ? location.pathname : "?image=" + this.current; // remove all get params on close
 			var t = new Date().getTime();
 			this.timestamps[t] = t;
-			History.pushState( { time: t }, null, url );
+			
+			var url = remove ? location.pathname : "?image=" + this.current; // remove all get params on close
+			var title = this.title ? this.pageTitle + ' - ' + this.title : this.pageTitle; // concat original page title with caption
+			
+			History.pushState( { time: t }, title, url );
 		},
 
 		_showImage: function( $item ) {
@@ -318,16 +336,19 @@
 			this.$loader.show();
 				 
 			var $thumb = $item.find('img'),
-				largesrc = $thumb.data('large'),
-				title = $thumb.data('description');
+				largesrc = $thumb.data('large');
+			
+				this.title = $thumb.data('description');
 			
 			$('<img/>').load( $.proxy( function() {
-					this.$rgImage.children('img').replaceWith('<img src="' + largesrc + '"/>').next('figcaption').empty();
+					this.$rgImage.children('img').replaceWith('<img src="' + largesrc + '"/>');
+					
+					this.$rgImage.children('figcaption').empty().hide();
+					if( this.title )
+						this.$rgImage.children('figcaption').show().text( this.title );
+				
 					this.$rgImage.centerBlock(true);
-				
-					if( title )
-						this.$rgImage.children('figcaption').show().text( title );
-				
+
 					this.$loader.hide();
 					
 					if( this.options.carousel && this.itemsCount > 1 ) {
@@ -363,7 +384,12 @@
 			swipe: true // mobile swipe: left/right
 		},
 		history: true, // pushState on image change
-		historyParam: 'image' // get param for pushState
+		historyParam: 'image', // get param for pushState
+		socialLinks: true, // add social sites' links
+		// config for socialCount
+		socialConfig: {
+			socialSites: [ 'vk', 'odnoklassniki', 'facebook', 'twitter' ]
+		}
 	};
 
 	var logError = function( message ) {
@@ -400,6 +426,6 @@
 			});
 		}
 		return this;
-  }
+  	}
 
 })(jQuery, window, document);
