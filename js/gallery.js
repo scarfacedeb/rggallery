@@ -340,8 +340,8 @@
 			
 				this.title = $thumb.data('description');
 			
-			$('<img/>').load( $.proxy( function() {
-					this.$rgImage.children('img').replaceWith('<img src="' + largesrc + '"/>');
+			$('<img/>').load( $.proxy( function(e) {
+					this.$rgImage.children('img').replaceWith( e.target );
 					
 					this.$rgImage.children('figcaption').empty().hide();
 					if( this.title )
