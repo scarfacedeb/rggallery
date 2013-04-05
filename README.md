@@ -14,3 +14,4 @@ TODO:
 - more flexible onClick function on carousel ( index() part )
 - update elasticslide or perhaps replace it with something else
 - remove <a> links from slider?
+- carousel position top

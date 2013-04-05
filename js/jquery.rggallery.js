@@ -49,15 +49,27 @@
 			this.current = 0;
 			this.isAnimating = false;
 
-			// create markup from template
-			this.$rgGallery = $('#rg-gallery').detach();
+			// create markup
+			this.$rgGallery = $(['<div id="rg-gallery" class="rg-gallery">',
+									'<span class="rg-close" title="Close">x</span>',
+									'<div class="rg-image-wrapper">',
+										'<figure class="rg-image">',
+											'<img src="">',
+											'<figcaption class="rg-caption"></figcaption>',
+										'</figure>',
+										'<div class="rg-loading"></div>',
+									'</div></div>'
+								].join(''));
+			
 			this.$rgImage = this.$rgGallery.find('.rg-image');
 			this.$loader = this.$rgGallery.find('.rg-loading');
 
 			if( this.itemsCount > 1 ) {
 				// addNavigation
-				this.$navPrev	= this.$rgGallery.find('.rg-image-nav-prev');
-				this.$navNext = this.$rgGallery.find('.rg-image-nav-next');
+				this.$nav = $('<nav />').addClass("rg-image-nav");
+				this.$navPrev = $('<span />').addClass('rg-image-nav-prev').appendTo(this.$nav);
+				this.$navNext = $('<span />').addClass('rg-image-nav-next').appendTo(this.$nav);
+				this.$nav.appendTo( this.$rgGallery.find('.rg-image-wrapper') );
 			} 
 			if ( this.itemsCount < 2 || !this.options.carousel ) {
 				// fill empty space for slider
@@ -109,8 +121,11 @@
 
 		_initSocial: function(){
 			// init socialcount plugin
-			this.$rgSocial = this.$rgGallery.find('#rg-social');
-			this.$socialCount = this.$rgSocial.children('ul').socialCount( this.options.socialConfig );
+			this.$rgSocial = $( '<div class="rg-social" id="rg-social">' ).prependTo(this.$rgGallery);
+			this.$socialCount = $( '<ul />' ).addClass('socialcount')
+											.data( 'vk-api', this.options.socialVkApi )
+											.socialCount( this.options.socialConfig )
+											.appendTo( this.$rgSocial );
 
 			this.$rgGallery.addClass( 'rg-gallery-social' );
 		},
@@ -120,7 +135,11 @@
 			// http://tympanus.net/codrops/2011/09/12/elastislide-responsive-carousel/
 			if( !this.options.carousel || this.itemsCount < 2 ) return false;
 
-			this.$rgThumbs = $('#rg-thumbs').detach();
+			this.$rgThumbs = $([ '<div id="rg-thumbs" class="rg-thumbs">',
+								 	'<div class="es-carousel-wrapper">',
+										'<div class="es-carousel"></div>',
+								 '</div></div>'
+								].join(''));
 
 			// optional separate thumb src for slider
 			if ( this.options.dataThumbs ) {
@@ -165,19 +184,22 @@
 		_initSlider: function(){
 
 			// append rgThumbs to body to determine carousel width
-			this.$esSlider = this.$rgThumbs.appendTo('body').find('.es-scroll').slider({
-				orientation	: 'horizontal',
-				animate 	: 1000,
-				min			: 0,
-				value		: 0,
-				slide		: $.proxy( function(e, ui) {
-					this.$esCarousel.find('ul').css( 'marginLeft', -ui.value );
-					// TODO: hide next/prev nav
-					// if ( ui.value == 0 ){
-					// 	this.$esCarousel.elastislide( 'toggleControls', 'prev' );
-					// }
-				}, this )
-			});
+			this.$esSlider = $('<div />').addClass('es-scroll')
+							.prependTo( this.$rgThumbs.appendTo('body') )
+							.slider({
+								orientation	: 'horizontal',
+								animate 	: 1000,
+								min			: 0,
+								value		: 0,
+								slide		: $.proxy( function(e, ui) {
+									this.$esCarousel.find('ul').css( 'marginLeft', -ui.value );
+									// TODO: hide next/prev nav
+									// if ( ui.value == 0 ){
+									// 	this.$esCarousel.elastislide( 'toggleControls', 'prev' );
+									// }
+								}, this )
+							});
+
 			this.$rgThumbs.detach();
 
 			// window resize
@@ -397,6 +419,7 @@
 		historyParam: 'image', // get param for pushState
 		socialLinks: true, // add social sites' links
 		// config for socialCount
+		socialVkApi: '3542794',
 		socialConfig: {
 			socialSites: [ 'vk', 'odnoklassniki', 'facebook', 'twitter' ]
 		}
