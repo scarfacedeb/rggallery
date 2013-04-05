@@ -43,7 +43,7 @@
 
 		_config: function() {
 		
-			this.$items = this.$el.find('li').clone();
+			this.$items = this.$el.find('a').clone();
 			this.itemsCount	 	= 	this.$items.length;
 
 			this.current = 0;
@@ -125,11 +125,21 @@
 			// optional separate thumb src for slider
 			if ( this.options.dataThumbs ) {
 				this.$items.each(function(){
-					var $this = $(this);
-					$this.prop( 'src', $this.data('thumb') ).removeProp('data-thumb');
+					var $img = $(this).children();
+					var thumb = $img.data('thumb');
+					
+					if ( thumb )
+						$img.prop( 'src', thumb ).removeProp('data-thumb');
 				});
 			}
-			this.$rgThumbs.find('.es-carousel').append( $('<ul>').append( this.$items ) );
+
+			// i'm sorry for this weird construction.
+			// wrap() doesn't work on cloned items. and it was 6 in the morning.)
+			this.$items.appendTo( 
+				$('<ul />').appendTo( 
+					this.$rgThumbs.find('.es-carousel') 
+				)
+			).wrap('<li />');
 
 			// call elasticslide
 			this.$esCarousel = this.$rgThumbs.children('.es-carousel-wrapper').show()
@@ -194,7 +204,7 @@
 			this.$el.on('click.rgGallery', 'a', $.proxy( function(e){
 					e.preventDefault();
 					
-					this.showGallery( $(e.target).closest('li').index() );
+					this.showGallery( $(e.target).parent().index() );
 					return false;
 				}, this )
 			);
@@ -352,8 +362,8 @@
 					this.$loader.hide();
 					
 					if( this.options.carousel && this.itemsCount > 1 ) {
-						this.$items.removeClass('selected');
-						$item.addClass('selected');
+						this.$esCarousel.find('.selected').removeClass('selected');
+						$item.parent().addClass('selected');
 
 						this.$esCarousel.elastislide( 'reload' );
 						this.$esCarousel.elastislide( 'setCurrent', this.current );
